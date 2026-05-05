@@ -1,0 +1,3089 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Lengkap Tugas Laravel - CRUD Produk + Authentication</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Highlight.js untuk syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+
+    <style>
+        /* ============================================
+           CSS VARIABLES
+           ============================================ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-card-hover: #1e2a42;
+            --bg-code: #0d1117;
+            --bg-sidebar: #0d1321;
+            --fg-primary: #e8edf5;
+            --fg-secondary: #9ca8c2;
+            --fg-muted: #5e6b85;
+            --accent: #10b981;
+            --accent-dim: rgba(16, 185, 129, 0.12);
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --border: #1e293b;
+            --border-light: #2a3650;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --sidebar-width: 300px;
+            --header-height: 64px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--header-height) + 24px);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.75;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(10, 15, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent), #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+            color: var(--fg-primary);
+        }
+
+        .header-title span {
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            background: var(--bg-card);
+            color: var(--fg-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-header:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .btn-header.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-header.primary:hover {
+            background: #059669;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .btn-sidebar-toggle {
+            display: none;
+            padding: 8px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--fg-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-sidebar-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ============================================
+           SIDEBAR
+           ============================================ */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 900;
+            transition: transform var(--transition);
+        }
+
+        .sidebar-section {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-section-title {
+            padding: 8px 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--fg-muted);
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 20px;
+            color: var(--fg-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+            border-left: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            color: var(--fg-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .sidebar-link.active {
+            color: var(--accent);
+            background: var(--accent-dim);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-link .num {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: var(--fg-muted);
+        }
+
+        .sidebar-link.active .num {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        .main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            padding: 40px 48px 80px;
+            max-width: 960px;
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.05) 100%);
+            border: 1px solid rgba(16,185,129,0.15);
+            border-radius: 16px;
+            padding: 48px 40px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: var(--fg-secondary);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .hero-stat-label {
+            font-size: 12px;
+            color: var(--fg-muted);
+            margin-top: 2px;
+        }
+
+        /* ============================================
+           SECTION
+           ============================================ */
+        .section {
+            margin-bottom: 56px;
+            scroll-margin-top: calc(var(--header-height) + 24px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(16,185,129,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .section-header h2 span {
+            color: var(--fg-muted);
+            font-weight: 500;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        /* ============================================
+           PROSE (Teks Konten)
+           ============================================ */
+        .prose p {
+            margin-bottom: 16px;
+            color: var(--fg-secondary);
+        }
+
+        .prose strong {
+            color: var(--fg-primary);
+            font-weight: 700;
+        }
+
+        .prose ul, .prose ol {
+            margin: 12px 0 16px 0;
+            padding-left: 24px;
+        }
+
+        .prose li {
+            margin-bottom: 8px;
+            color: var(--fg-secondary);
+        }
+
+        .prose li::marker {
+            color: var(--accent);
+        }
+
+        /* ============================================
+           INFO BOXES
+           ============================================ */
+        .info-box {
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-box .icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+        }
+
+        .info-box.penjelasan {
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            color: var(--info);
+        }
+
+        .info-box.peringatan {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .info-box.bahaya {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .info-box.pertanyaan {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 13.5px;
+            line-height: 1.65;
+        }
+
+        .info-box strong {
+            font-weight: 700;
+        }
+
+        /* ============================================
+           CODE BLOCKS
+           ============================================ */
+        .code-block {
+            position: relative;
+            margin: 20px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--fg-muted);
+        }
+
+        .code-lang .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .code-lang .dot.php { background: #7c3aed; }
+        .code-lang .dot.bash { background: var(--accent); }
+        .code-lang .dot.sql { background: var(--info); }
+        .code-lang .dot.env { background: var(--warning); }
+        .code-lang .dot.blade { background: #f43f5e; }
+        .code-lang .dot.git { background: #f97316; }
+        .code-lang .dot.js { background: #eab308; }
+        .code-lang .dot.css { background: #3b82f6; }
+
+        .code-file {
+            font-family: var(--font-code);
+            font-size: 11.5px;
+            color: var(--fg-muted);
+        }
+
+        .btn-copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-light);
+            background: transparent;
+            color: var(--fg-muted);
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-copy:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-copy.copied {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-code) !important;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: var(--font-code) !important;
+            font-size: 13px !important;
+            line-height: 1.7 !important;
+            background: transparent !important;
+        }
+
+        /* Inline code */
+        code:not(pre code) {
+            font-family: var(--font-code);
+            font-size: 13px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        /* ============================================
+           TABLES
+           ============================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        thead {
+            background: var(--bg-card);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--fg-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--fg-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.015);
+        }
+
+        td code {
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge.green {
+            background: rgba(16,185,129,0.15);
+            color: var(--accent);
+        }
+
+        .badge.blue {
+            background: rgba(6,182,212,0.15);
+            color: var(--info);
+        }
+
+        .badge.amber {
+            background: rgba(245,158,11,0.15);
+            color: var(--warning);
+        }
+
+        /* ============================================
+           CHECKLIST TABLE (Ringkasan Fitur)
+           ============================================ */
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            color: var(--fg-secondary);
+            transition: var(--transition);
+        }
+
+        .checklist li:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .checklist li .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(16,185,129,0.15);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checklist li .check-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .checklist li .label {
+            font-size: 13.5px;
+        }
+
+        .checklist li .file-tag {
+            margin-left: auto;
+            font-family: var(--font-code);
+            font-size: 11px;
+            color: var(--fg-muted);
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* ============================================
+           DIAGRAM (ASCII Art Style)
+           ============================================ */
+        .diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .diagram pre {
+            margin: 0;
+            font-family: var(--font-code);
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--fg-secondary);
+            white-space: pre;
+        }
+
+        /* ============================================
+           Q&A SECTION
+           ============================================ */
+        .qa-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .qa-item:hover {
+            border-color: var(--border-light);
+        }
+
+        .qa-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            background: var(--bg-card);
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .qa-question:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .qa-question h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qa-question h4 .q-tag {
+            background: rgba(168,85,247,0.15);
+            color: #a855f7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .qa-toggle {
+            color: var(--fg-muted);
+            transition: transform var(--transition);
+            flex-shrink: 0;
+        }
+
+        .qa-item.open .qa-toggle {
+            transform: rotate(180deg);
+        }
+
+        .qa-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .qa-item.open .qa-answer {
+            max-height: 2000px;
+        }
+
+        .qa-answer-inner {
+            padding: 20px;
+            color: var(--fg-secondary);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .qa-answer-inner strong {
+            color: var(--fg-primary);
+        }
+
+        /* ============================================
+           FLOW DIAGRAM
+           ============================================ */
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .flow-steps::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 28px;
+            bottom: 28px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--info));
+            opacity: 0.3;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 12px 0;
+        }
+
+        .flow-step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 800;
+            z-index: 1;
+        }
+
+        .flow-step-dot.green {
+            background: var(--accent-dim);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .flow-step-dot.red {
+            background: rgba(239,68,68,0.12);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .flow-step-dot.blue {
+            background: rgba(6,182,212,0.12);
+            border: 2px solid var(--info);
+            color: var(--info);
+        }
+
+        .flow-step-content {
+            padding-top: 8px;
+        }
+
+        .flow-step-content h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--fg-primary);
+            margin-bottom: 4px;
+        }
+
+        .flow-step-content p {
+            font-size: 13px;
+            color: var(--fg-muted);
+        }
+
+        /* ============================================
+           SUBSECTION
+           ============================================ */
+        .subsection {
+            margin: 36px 0 24px;
+        }
+
+        .subsection h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--fg-primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subsection h3 .sub-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--fg-muted);
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* ============================================
+           PROGRESS BAR
+           ============================================ */
+        .progress-bar-container {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--border);
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #06b6d4);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* ============================================
+           TOAST
+           ============================================ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 9999;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ============================================
+           PRINT STYLES
+           ============================================ */
+        @media print {
+            .header, .sidebar, .progress-bar-container, .btn-copy, .toast {
+                display: none !important;
+            }
+            .main {
+                margin-left: 0;
+                margin-top: 0;
+                padding: 20px;
+                max-width: 100%;
+            }
+            body {
+                background: white;
+                color: #1a1a1a;
+            }
+            .code-block {
+                border: 1px solid #ddd;
+            }
+            .code-block pre {
+                background: #f5f5f5 !important;
+            }
+            .code-block code {
+                color: #333 !important;
+            }
+            .hero {
+                background: #f0fdf4;
+                border-color: #bbf7d0;
+            }
+            .info-box {
+                border-width: 1px;
+            }
+            .section-header {
+                border-bottom-color: #ddd;
+            }
+            table {
+                border: 1px solid #ddd;
+            }
+            th, td {
+                border-color: #ddd;
+                color: #333;
+            }
+            thead {
+                background: #f5f5f5;
+            }
+        }
+
+        /* ============================================
+           MOBILE RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .btn-sidebar-toggle {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 30px rgba(0,0,0,0.5);
+            }
+            .main {
+                margin-left: 0;
+                padding: 24px 20px 60px;
+            }
+            .hero {
+                padding: 32px 24px;
+            }
+            .hero h1 {
+                font-size: 26px;
+            }
+            .hero-stats {
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            .section-header h2 {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-title {
+                display: none;
+            }
+            .hero h1 {
+                font-size: 22px;
+            }
+            .hero-stats {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .flow-steps::before {
+                display: none;
+            }
+        }
+
+        /* ============================================
+           OVERLAY (Mobile sidebar)
+           ============================================ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 899;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ============================================
+           ANIMATIONS
+           ============================================ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="btn-sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i data-lucide="menu" style="width:18px;height:18px;"></i>
+            </button>
+            <div class="header-logo">Lv</div>
+            <div class="header-title">Panduan <span>Laravel</span></div>
+        </div>
+        <div class="header-right">
+            <button class="btn-header" onclick="expandAll()">
+                <i data-lucide="chevrons-down" style="width:14px;height:14px;"></i>
+                Buka Semua
+            </button>
+            <button class="btn-header primary" onclick="window.print()">
+                <i data-lucide="printer" style="width:14px;height:14px;"></i>
+                Print / PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar" aria-label="Navigasi">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Pendahuluan</div>
+            <a class="sidebar-link active" href="#ringkasan" data-section="ringkasan">
+                <span class="num">0</span> Ringkasan Tugas
+            </a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Development</div>
+            <a class="sidebar-link" href="#step1" data-section="step1">
+                <span class="num">1</span> Installasi Laravel
+            </a>
+            <a class="sidebar-link" href="#step2" data-section="step2">
+                <span class="num">2</span> Konfigurasi Database
+            </a>
+            <a class="sidebar-link" href="#step3" data-section="step3">
+                <span class="num">3</span> Migration (Struktur Tabel)
+            </a>
+            <a class="sidebar-link" href="#step4" data-section="step4">
+                <span class="num">4</span> Model
+            </a>
+            <a class="sidebar-link" href="#step5" data-section="step5">
+                <span class="num">5</span> Controller
+            </a>
+            <a class="sidebar-link" href="#step6" data-section="step6">
+                <span class="num">6</span> Routes
+            </a>
+            <a class="sidebar-link" href="#step7" data-section="step7">
+                <span class="num">7</span> Views (Blade)
+            </a>
+            <a class="sidebar-link" href="#step8" data-section="step8">
+                <span class="num">8</span> Seeder (Data Dummy)
+            </a>
+            <a class="sidebar-link" href="#step9" data-section="step9">
+                <span class="num">9</span> Jalankan Aplikasi
+            </a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Referensi</div>
+            <a class="sidebar-link" href="#ringkasan-fitur" data-section="ringkasan-fitur">
+                <span class="num">R</span> Ringkasan Fitur
+            </a>
+            <a class="sidebar-link" href="#konsep" data-section="konsep">
+                <span class="num">K</span> Konsep Kunci
+            </a>
+            <a class="sidebar-link" href="#github" data-section="github">
+                <span class="num">G</span> Upload ke GitHub
+            </a>
+            <a class="sidebar-link" href="#qa" data-section="qa">
+                <span class="num">Q</span> Q&A Dosen
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+
+        <!-- ==============================
+             HERO
+             ============================== -->
+        <section class="hero" id="ringkasan">
+            <div class="hero-badge">
+                <i data-lucide="graduation-cap" style="width:14px;height:14px;"></i>
+                Tugas Laravel - 2 Hari
+            </div>
+            <h1>Panduan Lengkap: <span class="highlight">CRUD Produk</span> dengan Authentication</h1>
+            <p>Dari NOL sampai SIAP dikumpulkan. Setiap baris kode dijelaskan supaya kamu benar-benar paham, bukan cuma copy-paste.</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">9</div>
+                    <div class="hero-stat-label">Langkah Development</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">18</div>
+                    <div class="hero-stat-label">Fitur Diimplementasi</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">15+</div>
+                    <div class="hero-stat-label">File Script</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">5</div>
+                    <div class="hero-stat-label">Q&A Dosen</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabel Ringkasan -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Komponen</th>
+                        <th>Deskripsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Authentication</strong></td><td>Login & Logout</td></tr>
+                    <tr><td><strong>CRUD</strong></td><td>Create, Read, Update, Delete</td></tr>
+                    <tr><td><strong>Modul</strong></td><td>Produk (pilihan)</td></tr>
+                    <tr><td><strong>Validasi</strong></td><td>Input validation + error detail Bahasa Indonesia</td></tr>
+                    <tr><td><strong>Database</strong></td><td>Migration + struktur tabel relasi</td></tr>
+                    <tr><td><strong>Bonus</strong></td><td>Pagination, Search, Filter, Sort, Image Upload</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==============================
+             STEP 1: INSTALLASI
+             ============================== -->
+        <section class="section" id="step1">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <h2>Installasi Laravel <span>/ Setup Awal</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Laravel adalah framework PHP yang menggunakan <strong>Composer</strong> sebagai package manager. Composer akan mendownload semua file Laravel beserta dependensinya secara otomatis.</p>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Prasyarat:</strong> Pastikan kamu sudah install PHP 8.1+, Composer, dan MySQL/XAMPP/Laragon di komputer kamu.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Install Laravel via Composer
+composer create-project laravel/laravel tugas-laravel
+
+# Masuk ke folder project
+cd tugas-laravel</code></pre>
+            </div>
+
+            <div class="info-box pertanyaan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>Apa yang terjadi?</strong> Composer mendownload ~50MB file Laravel. Folder <code>tugas-laravel</code> terbuat dengan struktur project lengkap (app/, routes/, resources/, database/, dll).</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 2: KONFIGURASI DATABASE
+             ============================== -->
+        <section class="section" id="step2">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <h2>Konfigurasi Database <span>/.env</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Laravel perlu tahu database mana yang akan digunakan. Konfigurasi ini ada di file <code>.env</code> (environment file).</p>
+            </div>
+
+            <div class="info-box peringatan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>Kenapa pakai .env?</strong> Untuk memisahkan konfigurasi dari kode sumber. File <code>.env</code> TIDAK pernah di-commit ke Git (sudah ada di .gitignore), sehingga password database tetap aman.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">2.1</span> Edit file <code>.env</code></h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot env"></span> .env</div>
+                    <div class="code-file">.env</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-ini">DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tugas_laravel
+DB_USERNAME=root
+DB_PASSWORD=</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">2.2</span> Buat Database di MySQL</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot sql"></span> SQL</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-sql">CREATE DATABASE tugas_laravel;</code></pre>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 3: MIGRATION
+             ============================== -->
+        <section class="section" id="step3">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <h2>Migration <span>/ Struktur Tabel Database</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Migration adalah cara Laravel untuk <strong>mengelola struktur database</strong> dalam bentuk kode PHP. Keuntungannya:</p>
+                <ul>
+                    <li>Bisa di-<strong>rollback</strong> (kembali ke versi sebelumnya)</li>
+                    <li>Bisa di-share ke developer lain lewat Git</li>
+                    <li>Konsisten antar environment (dev, staging, production)</li>
+                </ul>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Konsep penting:</strong> Method <code>up()</code> = membuat tabel (CREATE), method <code>down()</code> = menghapus tabel (DROP). Ini pasangan yang selalu ada bersamaan.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">3.1</span> Buat Migration Products</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">php artisan make:migration create_products_table</code></pre>
+            </div>
+
+            <div class="info-box pertanyaan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>Apa itu <code>php artisan</code>?</strong> Perintah CLI bawaan Laravel untuk menjalankan berbagai tool: buat file, jalankan migration, bersihkan cache, dll. Seperti "swiss army knife"-nya Laravel.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">3.2</span> Isi File Migration Products</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">database/migrations/xxxx_create_products_table.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();                           // ID produk (primary key, auto-increment)
+            $table->string('name');                 // Nama produk, varchar(255)
+            $table->string('sku')-&gt;unique();        // SKU unik, tidak boleh sama
+            $table->text('description')-&gt;nullable(); // Deskripsi, BOLEH kosong (nullable)
+            $table->decimal('price', 15, 2);        // Harga: 15 digit total, 2 di belakang koma
+            $table->integer('stock');                // Stok, bilangan bulat
+            $table->enum('category', [               // Kategori tetap (hanya pilihan ini)
+                'Elektronik', 'Fashion', 'Makanan', 'Lainnya'
+            ]);
+            $table->string('image')-&gt;nullable();     // Path gambar, boleh kosong
+            $table->boolean('is_active')-&gt;default(true); // Status aktif, default true
+            $table->foreignId('user_id')             // Foreign key ke tabel users
+                  -&gt;constrained()                   // Otomatis refer ke kolom id di users
+                  -&gt;onDelete('cascade');            // Jika user dihapus, produk ikut terhapus
+            $table->timestamps();                    // Membuat created_at & updated_at
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('products');
+    }
+};</code></pre>
+            </div>
+
+            <!-- Tabel Tipe Data -->
+            <div class="subsection">
+                <h3><span class="sub-num">3.3</span> Referensi Tipe Data Migration</h3>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Method</th><th>Tipe DB</th><th>Contoh Data</th><th>Keterangan</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>$table-&gt;id()</code></td><td>BIGINT UNSIGNED AI</td><td>1, 2, 3...</td><td>Primary key otomatis</td></tr>
+                        <tr><td><code>$table-&gt;string('x')</code></td><td>VARCHAR(255)</td><td>"Laptop ASUS"</td><td>Text pendek</td></tr>
+                        <tr><td><code>$table-&gt;text('x')</code></td><td>TEXT</td><td>"Deskripsi panjang..."</td><td>Text panjang</td></tr>
+                        <tr><td><code>$table-&gt;decimal('x',15,2)</code></td><td>DECIMAL(15,2)</td><td>15000000.00</td><td>Angka presisi tinggi</td></tr>
+                        <tr><td><code>$table-&gt;integer('x')</code></td><td>INT</td><td>100</td><td>Bilangan bulat</td></tr>
+                        <tr><td><code>$table-&gt;enum('x',[...])</code></td><td>ENUM</td><td>"Elektronik"</td><td>Pilihan tetap</td></tr>
+                        <tr><td><code>$table-&gt;boolean('x')</code></td><td>TINYINT(1)</td><td>1 / 0</td><td>True/False</td></tr>
+                        <tr><td><code>$table-&gt;foreignId('x')</code></td><td>BIGINT UNSIGNED</td><td>1</td><td>Foreign key</td></tr>
+                        <tr><td><code>$table-&gt;timestamps()</code></td><td>TIMESTAMP x2</td><td>2024-01-15 10:00</td><td>created_at + updated_at</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">3.4</span> Jalankan Migration</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">php artisan migrate</code></pre>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p>Perintah ini menjalankan method <code>up()</code> di semua file migration. Sekarang tabel <code>users</code> dan <code>products</code> sudah ada di database kamu. Cek dengan <code>SHOW TABLES;</code> di MySQL.</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 4: MODEL
+             ============================== -->
+        <section class="section" id="step4">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <h2>Model <span>/ Representasi Tabel di PHP</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Model adalah class PHP yang mewakili satu tabel database. Fungsinya: berinteraksi dengan DB (query), mendefinisikan relasi, dan menentukan field yang boleh diisi.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">4.1</span> Buat Model Product</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">php artisan make:model Product</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">4.2</span> Isi Model Product</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">app/Models/Product.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    /**
+     * Field yang BOLEH diisi secara massal (Mass Assignment)
+     *
+     * Contoh: Product::create(['name' =&gt; 'Laptop', 'price' =&gt; 10000000]);
+     * Hanya field di bawah ini yang akan terisi.
+     * Field lainnya diabaikan untuk KEAMANAN.
+     */
+    protected $fillable = [
+        'name', 'sku', 'description', 'price', 'stock',
+        'category', 'image', 'is_active', 'user_id',
+    ];
+
+    /**
+     * Casting tipe data otomatis
+     * Memastikan tipe data konsisten saat diambil dari DB
+     */
+    protected function casts(): array
+    {
+        return [
+            'price' =&gt; 'decimal:2',   // Selalu 2 desimal
+            'is_active' =&gt; 'boolean',  // Konversi ke true/false
+        ];
+    }
+
+    /**
+     * RELASI: Product milik satu User
+     * (Inverse of One to Many)
+     *
+     * Cara pakai: $product-&gt;user  // mengembalikan objek User
+     *             $product-&gt;user-&gt;name  // nama pembuat produk
+     */
+    public function user()
+    {
+        return $this-&gt;belongsTo(User::class);
+    }
+
+    /**
+     * ACCESSOR: Format harga ke Rupiah
+     * Cara pakai: $product-&gt;price_formatted  // "Rp 15.000.000"
+     */
+    public function getPriceFormattedAttribute()
+    {
+        return 'Rp ' . number_format($this-&gt;price, 0, ',', '.');
+    }
+
+    /**
+     * ACCESSOR: Status aktif dalam bentuk teks
+     * Cara pakai: $product-&gt;status_text  // "Aktif" atau "Tidak Aktif"
+     */
+    public function getStatusTextAttribute()
+    {
+        return $this-&gt;is_active ? 'Aktif' : 'Tidak Aktif';
+    }
+}</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">4.3</span> Tambahkan Relasi di Model User</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">app/Models/User.php (tambahkan method ini)</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">// Tambahkan di dalam class User:
+
+/**
+ * RELASI: User punya banyak Product
+ * (One to Many)
+ *
+ * Cara pakai: $user-&gt;products  // koleksi semua produk user
+ */
+public function products()
+{
+    return $this-&gt;hasMany(Product::class);
+}</code></pre>
+            </div>
+
+            <!-- Diagram Relasi -->
+            <div class="subsection">
+                <h3><span class="sub-num">4.4</span> Visualisasi Relasi One-to-Many</h3>
+            </div>
+
+            <div class="diagram">
+                <pre>TABEL USERS              TABEL PRODUCTS
++----+-------+           +----+------------+---------+
+| id | name  |           | id | name       | user_id |
++----+-------+           +----+------------+---------+
+|  1 | Andi  | &lt;---------|  1 | Laptop     |    1    |
+|  2 | Budi  | &lt;---------|  2 | HP         |    1    |
++----+-------+           |  3 | Mouse      |    2    |
+                         +----+------------+---------+
+
+User 1 (Andi) punya 2 produk: Laptop &amp; HP
+User 2 (Budi) punya 1 produk: Mouse
+
+ $user = User::find(1);
+ $user-&gt;products;  // =&gt; Collection of 2 products
+
+ $product = Product::find(1);
+ $product-&gt;user;   // =&gt; User object (Andi)
+ $product-&gt;user-&gt;name;  // =&gt; "Andi"</pre>
+            </div>
+
+            <div class="info-box peringatan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>Kenapa perlu <code>$fillable</code>?</strong> Tanpa ini, <code>Product::create([...])</code> akan error <code>MassAssignmentException</code>. Ini fitur keamanan Laravel agar hacker tidak bisa menyusupkan field yang tidak boleh diubah (misal: <code>is_admin</code>).</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 5: CONTROLLER
+             ============================== -->
+        <section class="section" id="step5">
+            <div class="section-header">
+                <div class="section-num">5</div>
+                <h2>Controller <span>/ Otak Aplikasi</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Controller menerima request dari user, memproses data lewat Model, dan mengembalikan response (View). Opsi <code>--resource</code> otomatis membuat 7 method CRUD.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Buat AuthController (manual)
+php artisan make:controller AuthController
+
+# Buat ProductController (dengan 7 method resource otomatis)
+php artisan make:controller ProductController --resource</code></pre>
+            </div>
+
+            <!-- Tabel 7 Method -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Method</th><th>HTTP</th><th>URL</th><th>Fungsi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>index()</code></td><td class="badge green">GET</td><td>/products</td><td>List semua produk</td></tr>
+                        <tr><td><code>create()</code></td><td class="badge green">GET</td><td>/products/create</td><td>Form tambah</td></tr>
+                        <tr><td><code>store()</code></td><td class="badge blue">POST</td><td>/products</td><td>Simpan data baru</td></tr>
+                        <tr><td><code>show()</code></td><td class="badge green">GET</td><td>/products/{id}</td><td>Detail 1 produk</td></tr>
+                        <tr><td><code>edit()</code></td><td class="badge green">GET</td><td>/products/{id}/edit</td><td>Form edit</td></tr>
+                        <tr><td><code>update()</code></td><td class="badge amber">PUT</td><td>/products/{id}</td><td>Simpan perubahan</td></tr>
+                        <tr><td><code>destroy()</code></td><td class="badge amber" style="background:rgba(239,68,68,0.15);color:var(--danger)">DELETE</td><td>/products/{id}</td><td>Hapus produk</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">5.1</span> AuthController</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">app/Http/Controllers/AuthController.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+
+class AuthController extends Controller
+{
+    // Menampilkan form login
+    public function showLoginForm()
+    {
+        if (Auth::check()) {
+            return redirect()-&gt;route('home');
+        }
+        return view('auth.login');
+    }
+
+    // Proses login
+    public function login(Request $request)
+    {
+        // STEP 1: Validasi input
+        $credentials = $request-&gt;validate([
+            'email'    =&gt; 'required|email',
+            'password' =&gt; 'required|min:6',
+        ], [
+            'email.required'    =&gt; 'Email wajib diisi',
+            'email.email'       =&gt; 'Format email tidak valid',
+            'password.required' =&gt; 'Password wajib diisi',
+            'password.min'      =&gt; 'Password minimal 6 karakter',
+        ]);
+
+        // STEP 2: Cek kredensial
+        if (Auth::attempt($credentials, $request-&gt;boolean('remember'))) {
+            // Regenerate session (keamanan: cegah session fixation)
+            $request-&gt;session()-&gt;regenerate();
+
+            return redirect()-&gt;intended(route('home'))
+                -&gt;with('success', 'Login berhasil! Selamat datang.');
+        }
+
+        // STEP 3: Jika gagal
+        throw ValidationException::withMessages([
+            'email' =&gt; ['Email atau password salah'],
+        ]);
+    }
+
+    // Menampilkan form register
+    public function showRegisterForm()
+    {
+        if (Auth::check()) {
+            return redirect()-&gt;route('home');
+        }
+        return view('auth.register');
+    }
+
+    // Proses register
+    public function register(Request $request)
+    {
+        $validated = $request-&gt;validate([
+            'name'     =&gt; 'required|string|max:255',
+            'email'    =&gt; 'required|email|max:255|unique:users,email',
+            'password' =&gt; 'required|min:6|confirmed',
+        ], [
+            'name.required'      =&gt; 'Nama wajib diisi',
+            'email.required'     =&gt; 'Email wajib diisi',
+            'email.unique'       =&gt; 'Email sudah terdaftar',
+            'password.required'  =&gt; 'Password wajib diisi',
+            'password.min'       =&gt; 'Password minimal 6 karakter',
+            'password.confirmed' =&gt; 'Konfirmasi password tidak cocok',
+        ]);
+
+        $user = User::create([
+            'name'     =&gt; $validated['name'],
+            'email'    =&gt; $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        Auth::login($user);
+
+        return redirect()-&gt;route('home')
+            -&gt;with('success', 'Registrasi berhasil!');
+    }
+
+    // Proses logout
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request-&gt;session()-&gt;invalidate();
+        $request-&gt;session()-&gt;regenerateToken();
+        return redirect()-&gt;route('login')
+            -&gt;with('success', 'Logout berhasil!');
+    }
+}</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">5.2</span> ProductController (Store & Update)</h3>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Demi hemat ruang,</strong> berikut method <code>store()</code> dan <code>update()</code> yang paling penting. Method lainnya (index, create, show, edit, destroy) mengikuti pola yang sama.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">app/Http/Controllers/ProductController.php (bagian store)</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
+class ProductController extends Controller
+{
+    // Middleware: semua method butuh login
+    public function __construct()
+    {
+        $this-&gt;middleware('auth');
+    }
+
+    // LIST: Dengan pagination, search, filter
+    public function index(Request $request)
+    {
+        $query = Product::where('user_id', auth()-&gt;id());
+
+        // Search by name/SKU
+        if ($request-&gt;filled('search')) {
+            $search = $request-&gt;search;
+            $query-&gt;where(function ($q) use ($search) {
+                $q-&gt;where('name', 'LIKE', "%{$search}%")
+                  -&gt;orWhere('sku', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter category
+        if ($request-&gt;filled('category')) {
+            $query-&gt;where('category', $request-&gt;category);
+        }
+
+        // Pagination: 10 per halaman, pertahankan query string filter
+        $products = $query-&gt;orderBy('created_at', 'desc')-&gt;paginate(10)-&gt;withQueryString();
+
+        $categories = ['Elektronik', 'Fashion', 'Makanan', 'Lainnya'];
+        return view('products.index', compact('products', 'categories'));
+    }
+
+    // STORE: Simpan produk baru
+    public function store(Request $request)
+    {
+        $validated = $request-&gt;validate([
+            'name'        =&gt; 'required|string|max:255',
+            'sku'         =&gt; 'required|string|max:50|unique:products,sku|regex:/^[A-Z0-9\-]+$/',
+            'description' =&gt; 'nullable|string|max:1000',
+            'price'       =&gt; 'required|numeric|min:0',
+            'stock'       =&gt; 'required|integer|min:0',
+            'category'    =&gt; 'required|in:Elektronik,Fashion,Makanan,Lainnya',
+            'image'       =&gt; 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_active'   =&gt; 'nullable|boolean',
+        ], [
+            'name.required'   =&gt; 'Nama produk wajib diisi',
+            'sku.required'    =&gt; 'SKU wajib diisi',
+            'sku.unique'      =&gt; 'SKU sudah digunakan',
+            'sku.regex'       =&gt; 'SKU hanya boleh huruf besar, angka, dan dash',
+            'price.required'  =&gt; 'Harga wajib diisi',
+            'price.numeric'   =&gt; 'Harga harus berupa angka',
+            'stock.required'  =&gt; 'Stok wajib diisi',
+            'stock.integer'   =&gt; 'Stok harus bilangan bulat',
+            'category.required' =&gt; 'Kategori wajib dipilih',
+            'image.image'     =&gt; 'File harus berupa gambar',
+            'image.max'       =&gt; 'Ukuran gambar maksimal 2MB',
+        ]);
+
+        // Upload gambar jika ada
+        if ($request-&gt;hasFile('image')) {
+            $path = $request-&gt;file('image')-&gt;store('products', 'public');
+            $validated['image'] = $path;
+        }
+
+        $validated['user_id'] = auth()-&gt;id();
+        $validated['is_active'] = $request-&gt;boolean('is_active', true);
+
+        Product::create($validated);
+
+        return redirect()-&gt;route('products.index')
+            -&gt;with('success', 'Produk berhasil ditambahkan!');
+    }
+
+    // UPDATE: Ubah produk
+    public function update(Request $request, Product $product)
+    {
+        // Authorization: hanya pemilik yang bisa edit
+        if ($product-&gt;user_id !== auth()-&gt;id()) {
+            abort(403, 'Anda tidak memiliki akses ke produk ini');
+        }
+
+        $validated = $request-&gt;validate([
+            'name'        =&gt; 'required|string|max:255',
+            'sku'         =&gt; 'required|string|max:50|regex:/^[A-Z0-9\-]+$/|'
+                           . Rule::unique('products', 'sku')-&gt;ignore($product-&gt;id),
+            'description' =&gt; 'nullable|string|max:1000',
+            'price'       =&gt; 'required|numeric|min:0',
+            'stock'       =&gt; 'required|integer|min:0',
+            'category'    =&gt; 'required|in:Elektronik,Fashion,Makanan,Lainnya',
+            'image'       =&gt; 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_active'   =&gt; 'nullable|boolean',
+        ], [
+            'name.required'   =&gt; 'Nama produk wajib diisi',
+            'sku.unique'      =&gt; 'SKU sudah digunakan',
+            'price.required'  =&gt; 'Harga wajib diisi',
+            'stock.required'  =&gt; 'Stok wajib diisi',
+            'category.required' =&gt; 'Kategori wajib dipilih',
+        ]);
+
+        // Hapus gambar lama jika ada gambar baru
+        if ($request-&gt;hasFile('image')) {
+            if ($product-&gt;image) {
+                Storage::disk('public')-&gt;delete($product-&gt;image);
+            }
+            $path = $request-&gt;file('image')-&gt;store('products', 'public');
+            $validated['image'] = $path;
+        }
+
+        $validated['is_active'] = $request-&gt;boolean('is_active', true);
+        $product-&gt;update($validated);
+
+        return redirect()-&gt;route('products.index')
+            -&gt;with('success', 'Produk berhasil diperbarui!');
+    }
+
+    // DESTROY: Hapus produk
+    public function destroy(Product $product)
+    {
+        if ($product-&gt;user_id !== auth()-&gt;id()) {
+            abort(403);
+        }
+
+        if ($product-&gt;image) {
+            Storage::disk('public')-&gt;delete($product-&gt;image);
+        }
+
+        $product-&gt;delete();
+
+        return redirect()-&gt;route('products.index')
+            -&gt;with('success', 'Produk berhasil dihapus!');
+    }
+
+    // create(), show(), edit() -- mengembalikan view saja
+    public function create()
+    {
+        return view('products.create', [
+            'categories' =&gt; ['Elektronik', 'Fashion', 'Makanan', 'Lainnya']
+        ]);
+    }
+
+    public function show(Product $product)
+    {
+        if ($product-&gt;user_id !== auth()-&gt;id()) abort(403);
+        return view('products.show', compact('product'));
+    }
+
+    public function edit(Product $product)
+    {
+        if ($product-&gt;user_id !== auth()-&gt;id()) abort(403);
+        return view('products.edit', [
+            'product'    =&gt; $product,
+            'categories' =&gt; ['Elektronik', 'Fashion', 'Makanan', 'Lainnya']
+        ]);
+    }
+}</code></pre>
+            </div>
+
+            <!-- Alur Validasi -->
+            <div class="subsection">
+                <h3><span class="sub-num">5.3</span> Alur Kerja Validasi</h3>
+            </div>
+
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-step-dot green">1</div>
+                    <div class="flow-step-content">
+                        <h5>User Submit Form</h5>
+                        <p>Data dikirim ke controller via POST request</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-dot blue">2</div>
+                    <div class="flow-step-content">
+                        <h5>$request->validate()</h5>
+                        <p>Laravel cek setiap field sesuai aturan (required, min, unique, dll)</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-dot green">3a</div>
+                    <div class="flow-step-content">
+                        <h5>Jika Lolos → Simpan ke DB</h5>
+                        <p>Product::create($validated), redirect dengan flash message sukses</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-dot red">3b</div>
+                    <div class="flow-step-content">
+                        <h5>Jika Gagal → Redirect Back</h5>
+                        <p>Kembali ke form dengan error + old input (data yang sudah diisi tidak hilang)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 6: ROUTES
+             ============================== -->
+        <section class="section" id="step6">
+            <div class="section-header">
+                <div class="section-num">6</div>
+                <h2>Routes <span>/ Peta URL Aplikasi</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Route menghubungkan URL dengan Controller. Tanpa route, user tidak bisa mengakses fitur apapun. <code>Route::resource()</code> membuat 7 route CRUD sekaligus.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">routes/web.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Route;
+
+// ============================================
+// AUTH ROUTES (tidak butuh login)
+// ============================================
+Route::get('/login',    [AuthController::class, 'showLoginForm'])-&gt;name('login');
+Route::post('/login',   [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegisterForm'])-&gt;name('register');
+Route::post('/register',[AuthController::class, 'register']);
+Route::post('/logout',  [AuthController::class, 'logout'])-&gt;name('logout');
+
+// ============================================
+// PROTECTED ROUTES (butuh login)
+// ============================================
+Route::middleware('auth')-&gt;group(function () {
+
+    // Home → redirect ke products
+    Route::get('/', function () {
+        return redirect()-&gt;route('products.index');
+    })-&gt;name('home');
+
+    // Resource routes: 7 route CRUD sekaligus
+    Route::resource('products', ProductController::class);
+});</code></pre>
+            </div>
+
+            <div class="info-box pertanyaan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>Kenapa pakai <code>name('login')</code>?</strong> Route name memudahkan redirect: <code>return redirect()-&gt;route('login')</code>. Jika URL berubah dari <code>/login</code> jadi <code>/masuk</code>, cukup ubah di 1 tempat (routes/web.php), tidak perlu ubah di controller.</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 7: VIEWS
+             ============================== -->
+        <section class="section" id="step7">
+            <div class="section-header">
+                <div class="section-num">7</div>
+                <h2>Views (Blade) <span>/ Tampilan UI</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Blade adalah templating engine Laravel. Keunggulannya: template inheritance (<code>@extends</code>), directive simpel (<code>@if</code>, <code>@foreach</code>), dan otomatis escape XSS.</p>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Persiapan:</strong> Jalankan <code>php artisan storage:link</code> dulu agar gambar yang diupload bisa diakses via browser.</p>
+            </div>
+
+            <!-- Tabel Directive Blade -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Directive</th><th>Fungsi</th><th>Contoh</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>@extends('layout')</code></td><td>Gunakan layout induk</td><td>@extends('layouts.app')</td></tr>
+                        <tr><td><code>@section('name')</code></td><td>Isi placeholder di layout</td><td>@section('content')...@endsection</td></tr>
+                        <tr><td><code>@yield('name')</code></td><td>Placeholder (di layout)</td><td>@yield('content')</td></tr>
+                        <tr><td><code>@if / @endif</code></td><td>Kondisi</td><td>@if($user) ... @endif</td></tr>
+                        <tr><td><code>@foreach / @endforeach</code></td><td>Looping</td><td>@foreach($items as $item)</td></tr>
+                        <tr><td><code>@csrf</code></td><td>CSRF token (WAJIB di form)</td><td>Hidden input otomatis</td></tr>
+                        <tr><td><code>@method('PUT')</code></td><td>Override HTTP method</td><td>Untuk form edit</td></tr>
+                        <tr><td><code>@error('field')</code></td><td>Cek error validasi</td><td>@error('email') ... @enderror</td></tr>
+                        <tr><td><code>{{ $var }}</code></td><td>Echo dengan escape (aman XSS)</td><td>{{ $product-&gt;name }}</td></tr>
+                        <tr><td><code>old('field')</code></td><td>Ambil input sebelumnya</td><td>value="{{ old('name') }}"</td></tr>
+                        <tr><td><code>@guest / @endguest</code></td><td>Jika belum login</td><td>@guest ... @endguest</td></tr>
+                        <tr><td><code>@auth / @endauth</code></td><td>Jika sudah login</td><td>@auth ... @endauth</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">7.1</span> Layout Utama</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot blade"></span> Blade</div>
+                    <div class="code-file">resources/views/layouts/app.blade.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;@yield('title', 'Tugas Laravel')&lt;/title&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"&gt;
+    &lt;style&gt;
+        body { background-color: #f8f9fa; }
+        .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- NAVBAR --&gt;
+    &lt;nav class="navbar navbar-expand-lg navbar-dark bg-primary"&gt;
+        &lt;div class="container"&gt;
+            &lt;a class="navbar-brand" href="{{ route('home') }}"&gt;
+                &lt;i class="bi bi-box-seam"&gt;&lt;/i&gt; Manajemen Produk
+            &lt;/a&gt;
+
+            @guest
+                &lt;div class="d-flex"&gt;
+                    &lt;a href="{{ route('login') }}" class="btn btn-outline-light me-2"&gt;Login&lt;/a&gt;
+                    &lt;a href="{{ route('register') }}" class="btn btn-light"&gt;Register&lt;/a&gt;
+                &lt;/div&gt;
+            @else
+                &lt;div class="dropdown"&gt;
+                    &lt;button class="btn btn-outline-light dropdown-toggle"&gt;
+                        &lt;i class="bi bi-person-circle"&gt;&lt;/i&gt; {{ Auth::user()-&gt;name }}
+                    &lt;/button&gt;
+                    &lt;ul class="dropdown-menu dropdown-menu-end"&gt;
+                        &lt;li&gt;
+                            &lt;form method="POST" action="{{ route('logout') }}"&gt;
+                                @csrf
+                                &lt;button class="dropdown-item text-danger"&gt;
+                                    &lt;i class="bi bi-box-arrow-right"&gt;&lt;/i&gt; Logout
+                                &lt;/button&gt;
+                            &lt;/form&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+            @endguest
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;!-- FLASH MESSAGES --&gt;
+    &lt;main class="container py-4"&gt;
+        @if(session('success'))
+            &lt;div class="alert alert-success alert-dismissible fade show"&gt;
+                &lt;i class="bi bi-check-circle"&gt;&lt;/i&gt; {{ session('success') }}
+                &lt;button type="button" class="btn-close" data-bs-dismiss="alert"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+        @endif
+
+        @if(session('error'))
+            &lt;div class="alert alert-danger alert-dismissible fade show"&gt;
+                &lt;i class="bi bi-exclamation-triangle"&gt;&lt;/i&gt; {{ session('error') }}
+                &lt;button type="button" class="btn-close" data-bs-dismiss="alert"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+        @endif
+
+        @yield('content')
+    &lt;/main&gt;
+
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+    @stack('scripts')
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">7.2</span> View Login (Pola Error Display)</h3>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Pattern penting!</strong> Cara menampilkan error validasi di Blade. Pattern ini dipakai di SEMUA form (login, register, create, edit). Hafalkan pola ini:</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot blade"></span> Blade</div>
+                    <div class="code-file">resources/views/auth/login.blade.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-xml">@extends('layouts.app')
+@section('title', 'Login')
+
+@section('content')
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-md-5"&gt;
+        &lt;div class="card"&gt;&lt;div class="card-body p-4"&gt;
+            &lt;h3 class="text-center mb-4"&gt;Login&lt;/h3&gt;
+
+            &lt;form method="POST" action="{{ route('login') }}"&gt;
+                @csrf  {{-- WAJIB di setiap form --}}
+
+                {{-- PATTERN ERROR DISPLAY --}}
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Email&lt;/label&gt;
+                    &lt;input type="email" name="email"
+                           class="form-control @error('email') is-invalid @enderror"
+                           value="{{ old('email') }}" required&gt;
+
+                    @error('email')
+                        &lt;div class="invalid-feedback"&gt;
+                            {{ $message }}
+                        &lt;/div&gt;
+                    @enderror
+                &lt;/div&gt;
+
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Password&lt;/label&gt;
+                    &lt;input type="password" name="password"
+                           class="form-control @error('password') is-invalid @enderror"
+                           required&gt;
+
+                    @error('password')
+                        &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                    @enderror
+                &lt;/div&gt;
+
+                &lt;button type="submit" class="btn btn-primary w-100"&gt;Login&lt;/button&gt;
+            &lt;/form&gt;
+
+            &lt;p class="text-center mt-3"&gt;
+                Belum punya akun? &lt;a href="{{ route('register') }}"&gt;Register&lt;/a&gt;
+            &lt;/p&gt;
+        &lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">7.3</span> View Products Index (List + Pagination)</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot blade"></span> Blade</div>
+                    <div class="code-file">resources/views/products/index.blade.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-xml">@extends('layouts.app')
+@section('title', 'Daftar Produk')
+
+@section('content')
+&lt;div class="d-flex justify-content-between align-items-center mb-4"&gt;
+    &lt;h4&gt;Daftar Produk&lt;/h4&gt;
+    &lt;a href="{{ route('products.create') }}" class="btn btn-primary"&gt;
+        &lt;i class="bi bi-plus-circle"&gt;&lt;/i&gt; Tambah Produk
+    &lt;/a&gt;
+&lt;/div&gt;
+
+{{-- FILTER FORM --}}
+&lt;form method="GET" action="{{ route('products.index') }}" class="row g-2 mb-4"&gt;
+    &lt;div class="col-md-4"&gt;
+        &lt;input type="text" name="search" class="form-control"
+               value="{{ request('search') }}" placeholder="Cari..."&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;select name="category" class="form-select"&gt;
+            &lt;option value=""&gt;Semua Kategori&lt;/option&gt;
+            @foreach($categories as $cat)
+                &lt;option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}&gt;
+                    {{ $cat }}
+                &lt;/option&gt;
+            @endforeach
+        &lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-auto"&gt;
+        &lt;button type="submit" class="btn btn-primary"&gt;Cari&lt;/button&gt;
+        &lt;a href="{{ route('products.index') }}" class="btn btn-outline-secondary"&gt;Reset&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+
+{{-- TABEL PRODUK --}}
+&lt;div class="card"&gt;
+    &lt;table class="table table-hover mb-0"&gt;
+        &lt;thead class="table-light"&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Produk&lt;/th&gt;
+                &lt;th&gt;SKU&lt;/th&gt;
+                &lt;th&gt;Harga&lt;/th&gt;
+                &lt;th&gt;Stok&lt;/th&gt;
+                &lt;th&gt;Status&lt;/th&gt;
+                &lt;th&gt;Aksi&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            @forelse($products as $product)
+                &lt;tr&gt;
+                    &lt;td&gt;
+                        &lt;a href="{{ route('products.show', $product) }}"&gt;
+                            {{ Str::limit($product-&gt;name, 40) }}
+                        &lt;/a&gt;
+                        &lt;br&gt;&lt;small class="text-muted"&gt;{{ $product-&gt;category }}&lt;/small&gt;
+                    &lt;/td&gt;
+                    &lt;td&gt;&lt;code&gt;{{ $product-&gt;sku }}&lt;/code&gt;&lt;/td&gt;
+                    &lt;td&gt;{{ $product-&gt;price_formatted }}&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;span class="badge @if($product-&gt;stock &gt; 10) bg-success
+                              @elseif($product-&gt;stock &gt; 0) bg-warning text-dark
+                              @else bg-danger @endif"&gt;
+                            {{ $product-&gt;stock }}
+                        &lt;/span&gt;
+                    &lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;span class="badge @if($product-&gt;is_active) bg-success @else bg-secondary @endif"&gt;
+                            {{ $product-&gt;status_text }}
+                        &lt;/span&gt;
+                    &lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;div class="btn-group btn-group-sm"&gt;
+                            &lt;a href="{{ route('products.show', $product) }}"
+                               class="btn btn-outline-info" title="Detail"&gt;
+                                &lt;i class="bi bi-eye"&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                            &lt;a href="{{ route('products.edit', $product) }}"
+                               class="btn btn-outline-warning" title="Edit"&gt;
+                                &lt;i class="bi bi-pencil"&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                            {{-- FORM DELETE --}}
+                            &lt;form method="POST"
+                                  action="{{ route('products.destroy', $product) }}"
+                                  onsubmit="return confirm('Yakin ingin menghapus?')"&gt;
+                                @csrf
+                                @method('DELETE')  {{-- Override method ke DELETE --}}
+                                &lt;button type="submit" class="btn btn-outline-danger" title="Hapus"&gt;
+                                    &lt;i class="bi bi-trash"&gt;&lt;/i&gt;
+                                &lt;/button&gt;
+                            &lt;/form&gt;
+                        &lt;/div&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            @empty
+                &lt;tr&gt;
+                    &lt;td colspan="6" class="text-center py-5"&gt;
+                        &lt;p class="text-muted"&gt;Belum ada produk&lt;/p&gt;
+                        &lt;a href="{{ route('products.create') }}" class="btn btn-primary"&gt;
+                            Tambah Produk Pertama
+                        &lt;/a&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            @endforelse
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/div&gt;
+
+{{-- PAGINATION --}}
+&lt;div class="mt-4 d-flex justify-content-center"&gt;
+    {{ $products-&gt;links() }}
+&lt;/div&gt;
+@endsection</code></pre>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="sub-num">7.4</span> View Create/Edit Form (Upload Gambar)</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot blade"></span> Blade</div>
+                    <div class="code-file">resources/views/products/create.blade.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-xml">@extends('layouts.app')
+@section('title', 'Tambah Produk')
+
+@section('content')
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-md-8"&gt;
+        &lt;div class="card"&gt;&lt;div class="card-body p-4"&gt;
+            &lt;h4 class="mb-4"&gt;Tambah Produk Baru&lt;/h4&gt;
+
+            &lt;!-- enctype="multipart/form-data" WAJIB untuk upload file --&gt;
+            &lt;form method="POST" action="{{ route('products.store') }}"
+                  enctype="multipart/form-data"&gt;
+                @csrf
+
+                &lt;div class="row"&gt;
+                    &lt;div class="col-md-6"&gt;
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Nama Produk &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" name="name"
+                                   class="form-control @error('name') is-invalid @enderror"
+                                   value="{{ old('name') }}" required&gt;
+                            @error('name')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;SKU &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" name="sku"
+                                   class="form-control @error('sku') is-invalid @enderror"
+                                   value="{{ old('sku') }}" required
+                                   style="text-transform:uppercase;"
+                                   placeholder="LAPTOP-001"&gt;
+                            @error('sku')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Kategori &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;select name="category"
+                                    class="form-select @error('category') is-invalid @enderror"
+                                    required&gt;
+                                &lt;option value=""&gt;-- Pilih --&lt;/option&gt;
+                                @foreach($categories as $cat)
+                                    &lt;option value="{{ $cat }}"
+                                        {{ old('category') == $cat ? 'selected' : '' }}&gt;
+                                        {{ $cat }}
+                                    &lt;/option&gt;
+                                @endforeach
+                            &lt;/select&gt;
+                            @error('category')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="col-md-6"&gt;
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Harga (Rp) &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" name="price"
+                                   class="form-control @error('price') is-invalid @enderror"
+                                   value="{{ old('price') }}" required min="0"&gt;
+                            @error('price')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Stok &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" name="stock"
+                                   class="form-control @error('stock') is-invalid @enderror"
+                                   value="{{ old('stock', 0) }}" required min="0"&gt;
+                            @error('stock')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="mb-3 form-check form-switch"&gt;
+                            &lt;input type="checkbox" name="is_active" value="1"
+                                   class="form-check-input"
+                                   {{ !old('is_active', true) ? '' : 'checked' }}&gt;
+                            &lt;label class="form-check-label"&gt;Produk Aktif&lt;/label&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Deskripsi&lt;/label&gt;
+                            &lt;textarea name="description" class="form-control" rows="4"&gt;
+                                {{ old('description') }}
+                            &lt;/textarea&gt;
+                        &lt;/div&gt;
+
+                        &lt;div class="mb-3"&gt;
+                            &lt;label&gt;Gambar Produk&lt;/label&gt;
+                            &lt;input type="file" name="image" accept="image/*"
+                                   class="form-control @error('image') is-invalid @enderror"&gt;
+                            &lt;div class="form-text"&gt;JPEG, PNG, GIF. Maks 2MB&lt;/div&gt;
+                            @error('image')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+
+                &lt;div class="d-flex justify-content-end gap-2"&gt;
+                    &lt;a href="{{ route('products.index') }}" class="btn btn-secondary"&gt;Kembali&lt;/a&gt;
+                    &lt;button type="submit" class="btn btn-primary"&gt;Simpan Produk&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/form&gt;
+        &lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@push('scripts')
+&lt;script&gt;
+// Auto-uppercase SKU
+document.querySelector('[name="sku"]').addEventListener('input', function() {
+    this.value = this.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+});
+&lt;/script&gt;
+@endpush
+@endsection</code></pre>
+            </div>
+
+            <div class="info-box peringatan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p><strong>3 hal yang sering lupa:</strong> (1) <code>@csrf</code> di setiap form, (2) <code>enctype="multipart/form-data"</code> untuk upload file, (3) <code>@method('DELETE')</code> untuk form hapus.</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 8: SEEDER
+             ============================== -->
+        <section class="section" id="step8">
+            <div class="section-header">
+                <div class="section-num">8</div>
+                <h2>Seeder <span>/ Data Dummy untuk Testing</span></h2>
+            </div>
+
+            <div class="prose">
+                <p>Seeder mengisi database dengan data awal/dummy. Berguna untuk testing tanpa perlu input manual satu-satu.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash">php artisan make:seeder UserSeeder
+php artisan make:seeder ProductSeeder</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">database/seeders/UserSeeder.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+
+class UserSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // User untuk testing login
+        User::create([
+            'name'     =&gt; 'Admin Test',
+            'email'    =&gt; 'admin@test.com',
+            'password' =&gt; Hash::make('password123'),
+        ]);
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">database/seeders/ProductSeeder.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace Database\Seeders;
+
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+
+class ProductSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $user = User::first();
+
+        $products = [
+            ['name' =&gt; 'Laptop ASUS ROG', 'sku' =&gt; 'LAPTOP-001',
+             'description' =&gt; 'Laptop gaming Intel i7, RAM 16GB',
+             'price' =&gt; 25000000, 'stock' =&gt; 15, 'category' =&gt; 'Elektronik'],
+            ['name' =&gt; 'iPhone 15 Pro', 'sku' =&gt; 'PHONE-001',
+             'description' =&gt; 'Smartphone Apple chip A17 Pro',
+             'price' =&gt; 22000000, 'stock' =&gt; 25, 'category' =&gt; 'Elektronik'],
+            ['name' =&gt; 'Kemeja Batik Premium', 'sku' =&gt; 'FASHION-001',
+             'description' =&gt; 'Batik tulis asli Pekalongan',
+             'price' =&gt; 350000, 'stock' =&gt; 50, 'category' =&gt; 'Fashion'],
+            ['name' =&gt; 'Kopi Arabika Gayo', 'sku' =&gt; 'FOOD-001',
+             'description' =&gt; 'Kopi premium dari Aceh',
+             'price' =&gt; 85000, 'stock' =&gt; 100, 'category' =&gt; 'Makanan'],
+            ['name' =&gt; 'Mouse Wireless', 'sku' =&gt; 'ACC-001',
+             'description' =&gt; 'Mouse ergonomis 4000 DPI',
+             'price' =&gt; 450000, 'stock' =&gt; 0, 'category' =&gt; 'Elektronik',
+             'is_active' =&gt; false],
+        ];
+
+        foreach ($products as $data) {
+            $data['user_id'] = $user-&gt;id;
+            $data['is_active'] = $data['is_active'] ?? true;
+            Product::create($data);
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <div class="code-file">database/seeders/DatabaseSeeder.php</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">&lt;?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $this-&gt;call([
+            UserSeeder::class,
+            ProductSeeder::class,
+        ]);
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Jalankan seeder
+php artisan db:seed</code></pre>
+            </div>
+        </section>
+
+        <!-- ==============================
+             STEP 9: JALANKAN
+             ============================== -->
+        <section class="section" id="step9">
+            <div class="section-header">
+                <div class="section-num">9</div>
+                <h2>Jalankan Aplikasi <span>/ Testing</span></h2>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot bash"></span> Bash</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># Jalankan server lokal
+php artisan serve
+
+# Buka di browser:
+# http://127.0.0.1:8000</code></pre>
+            </div>
+
+            <div class="info-box penjelasan">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p><strong>Akun untuk testing:</strong> Email: <code>admin@test.com</code> | Password: <code>password123</code></p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             RINGKASAN FITUR
+             ============================== -->
+        <section class="section" id="ringkasan-fitur">
+            <div class="section-header">
+                <div class="section-num">R</div>
+                <h2>Ringkasan Fitur</h2>
+            </div>
+
+            <ul class="checklist">
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Login & Logout</span>
+                    <span class="file-tag">AuthController.php</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Register</span>
+                    <span class="file-tag">AuthController.php</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Create Product (tambah produk)</span>
+                    <span class="file-tag">ProductController@store</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Read Products (daftar + detail)</span>
+                    <span class="file-tag">ProductController@index, show</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Update Product (edit produk)</span>
+                    <span class="file-tag">ProductController@update</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Delete Product (hapus produk)</span>
+                    <span class="file-tag">ProductController@destroy</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Validasi Input + Error Bahasa Indonesia</span>
+                    <span class="file-tag">Semua Controller</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Database Migration</span>
+                    <span class="file-tag">create_products_table.php</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Relasi One-to-Many (User - Product)</span>
+                    <span class="file-tag">User.php, Product.php</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Pagination (10 per halaman)</span>
+                    <span class="file-tag">ProductController@index</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Search by Name/SKU</span>
+                    <span class="file-tag">ProductController@index</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Filter by Category</span>
+                    <span class="file-tag">ProductController@index</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Image Upload + Delete</span>
+                    <span class="file-tag">ProductController@store, update</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Authorization (hanya pemilik)</span>
+                    <span class="file-tag">ProductController</span>
+                </li>
+                <li>
+                    <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <span class="label">Seeder (Data Dummy)</span>
+                    <span class="file-tag">UserSeeder, ProductSeeder</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ==============================
+             KONSEP KUNCI
+             ============================== -->
+        <section class="section" id="konsep">
+            <div class="section-header">
+                <div class="section-num">K</div>
+                <h2>Konsep Kunci yang Harus Dipahami</h2>
+            </div>
+
+            <div class="subsection">
+                <h3>Alur Request-Response Laravel</h3>
+            </div>
+
+            <div class="diagram">
+                <pre>  Browser          Route           Controller         Model          Database
+    │                │                  │                │                │
+    │─── GET /products ────►│                │                │                │
+    │                │── middleware ──►│                │                │
+    │                │   (auth check)  │                │                │
+    │                │                │── query ──────►│                │
+    │                │                │                │── SQL ────────►│
+    │                │                │                │◄── result ─────│
+    │                │                │◄── collection ──│                │
+    │                │◄── view ───────│                │                │
+    │◄── HTML ──────│                │                │                │</pre>
+            </div>
+
+            <div class="subsection">
+                <h3>MVC Pattern</h3>
+            </div>
+
+            <div class="diagram">
+                <pre>  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+  │      Model      │◄───►│    Controller    │◄───►│      View       │
+  │   (Database)    │     │    (Logic)      │     │      (UI)       │
+  │                 │     │                 │     │                 │
+  │ - Product.php   │     │ - ProductCtrl   │     │ - index.blade   │
+  │ - User.php      │     │ - AuthCtrl      │     │ - login.blade   │
+  │ - Query data    │     │ - Validasi      │     │ - Tampilkan HTML│
+  │ - Relasi        │     │ - Auth check    │     │ - Form input    │
+  └─────────────────┘     └─────────────────┘     └─────────────────┘</pre>
+            </div>
+
+            <div class="subsection">
+                <h3>Route Model Binding</h3>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot php"></span> PHP</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-php">// TANPA Route Model Binding (manual)
+public function show($id)
+{
+    $product = Product::find($id);  // Query manual
+    if (!$product) { abort(404); }  // Cek manual
+}
+
+// DENGAN Route Model Binding (otomatis)
+public function show(Product $product)  // Laravel otomatis cari by ID
+{
+    // $product sudah terisi. 404 otomatis jika tidak ketemu.
+    // Lebih bersih dan aman!
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- ==============================
+             GITHUB
+             ============================== -->
+        <section class="section" id="github">
+            <div class="section-header">
+                <div class="section-num">G</div>
+                <h2>Upload ke GitHub / GitLab</h2>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang"><span class="dot git"></span> Git</div>
+                    <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code class="language-bash"># 1. Inisialisasi git
+git init
+
+# 2. Tambah semua file
+git add .
+
+# 3. Commit
+git commit -m "feat: complete CRUD products with authentication"
+
+# 4. Buat repository di GitHub (manual di github.com)
+
+# 5. Hubungkan dan push
+git remote add origin https://github.com/USERNAME/tugas-laravel.git
+git branch -M main
+git push -u origin main</code></pre>
+            </div>
+
+            <div class="info-box bahaya">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <p><strong>JANGAN lupa:</strong> File <code>.env</code> sudah ada di <code>.gitignore</code> (bawaan Laravel), jadi password database kamu TIDAK akan ter-upload. Pastikan ini tetap seperti itu!</p>
+            </div>
+        </section>
+
+        <!-- ==============================
+             Q&A DOSEN
+             ============================== -->
+        <section class="section" id="qa">
+            <div class="section-header">
+                <div class="section-num">Q</div>
+                <h2>Q&A yang Mungkin Ditanyakan Dosen</h2>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-question" onclick="toggleQA(this)">
+                    <h4><span class="q-tag">Q1</span> Jelaskan arsitektur MVC di Laravel!</h4>
+                    <svg class="qa-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-answer">
+                    <div class="qa-answer-inner">
+                        <p><strong>Model</strong> bertanggung jawab atas interaksi dengan database. Di project ini, <code>Product.php</code> dan <code>User.php</code> adalah model yang mewakili tabel <code>products</code> dan <code>users</code>.</p>
+                        <p><strong>View</strong> menampilkan UI ke user. File <code>.blade.php</code> di folder <code>resources/views/</code> berisi HTML yang di-render oleh Blade templating engine.</p>
+                        <p><strong>Controller</strong> mengatur logika bisnis: menerima request, memanggil model untuk query data, lalu mengembalikan view. <code>ProductController.php</code> mengatur semua operasi CRUD produk.</p>
+                        <p>Alurnya: <strong>Browser → Route → Controller → Model → Database</strong>, lalu <strong>Database → Model → Controller → View → Browser</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-question" onclick="toggleQA(this)">
+                    <h4><span class="q-tag">Q2</span> Apa itu Migration dan kenapa penting?</h4>
+                    <svg class="qa-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-answer">
+                    <div class="qa-answer-inner">
+                        <p>Migration adalah <strong>version control untuk database</strong>. Setiap perubahan struktur tabel ditulis dalam file PHP yang bisa di-commit ke Git.</p>
+                        <p>Keuntungannya: (1) Bisa di-rollback dengan <code>php artisan migrate:rollback</code>, (2) Bisa di-share ke developer lain lewat Git, (3) Konsisten antar environment (dev vs production), (4) Tidak perlu query SQL manual yang rawan error.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-question" onclick="toggleQA(this)">
+                    <h4><span class="q-tag">Q3</span> Bagaimana Laravel mencegah SQL Injection?</h4>
+                    <svg class="qa-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-answer">
+                    <div class="qa-answer-inner">
+                        <p>Laravel menggunakan <strong>Eloquent ORM</strong> dan <strong>Query Builder</strong> yang secara otomatis menggunakan <strong>prepared statements</strong> (parameter binding).</p>
+                        <p>Contoh: <code>Product::where('name', $userInput)->get()</code> akan dikonversi ke query <code>SELECT * FROM products WHERE name = ?</code> di mana parameter di-bind secara terpisah, sehingga input user tidak bisa disisipi perintah SQL berbahaya.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-question" onclick="toggleQA(this)">
+                    <h4><span class="q-tag">Q4</span> Apa itu CSRF dan bagaimana Laravel menanganinya?</h4>
+                    <svg class="qa-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-answer">
+                    <div class="qa-answer-inner">
+                        <p><strong>CSRF (Cross-Site Request Forgery)</strong> adalah serangan yang memanfaatkan session user yang sudah login untuk mengirim request palsu.</p>
+                        <p>Laravel menanganinya dengan: (1) Setiap form harus punya <code>@csrf</code> yang generate <strong>token unik</strong>, (2) Token disimpan di session, (3) Setiap POST/PUT/DELETE request dicek tokennya, (4) Jika tidak cocok → error 419.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-question" onclick="toggleQA(this)">
+                    <h4><span class="q-tag">Q5</span> Jelaskan relasi One-to-Many di project ini!</h4>
+                    <svg class="qa-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-answer">
+                    <div class="qa-answer-inner">
+                        <p>Relasi <strong>One-to-Many</strong> antara User dan Product: satu User bisa punya <strong>banyak</strong> Product, tapi satu Product hanya punya <strong>satu</strong> User.</p>
+                        <p>Implementasi: kolom <code>user_id</code> di tabel <code>products</code> sebagai <strong>foreign key</strong> yang merujuk ke <code>users.id</code>.</p>
+                        <p>Di kode: <code>$user->products</code> (hasMany) dan <code>$product->user</code> (belongsTo). Opsi <code>onDelete('cascade')</code> di migration memastikan jika user dihapus, semua produknya ikut terhapus.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="toastMsg">Kode berhasil disalin!</span>
+    </div>
+
+    <script>
+        // ============================================
+        // INIT: Highlight.js & Lucide Icons
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+            lucide.createIcons();
+            updateActiveSidebar();
+        });
+
+        // ============================================
+        // SIDEBAR TOGGLE (Mobile)
+        // ============================================
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+
+        // Tutup sidebar saat klik link di mobile
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // ============================================
+        // SCROLL: Update active sidebar + progress bar
+        // ============================================
+        function updateActiveSidebar() {
+            const sections = document.querySelectorAll('.section, .hero');
+            const links = document.querySelectorAll('.sidebar-link');
+            const scrollPos = window.scrollY + 120;
+
+            let currentSection = '';
+            sections.forEach(section => {
+                if (section.offsetTop <= scrollPos) {
+                    currentSection = section.id;
+                }
+            });
+
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        function updateProgressBar() {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        }
+
+        window.addEventListener('scroll', () => {
+            updateActiveSidebar();
+            updateProgressBar();
+        }, { passive: true });
+
+        // ============================================
+        // COPY CODE
+        // ============================================
+        function copyCode(btn) {
+            const codeBlock = btn.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                showToast('Kode berhasil disalin!');
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = 'Copy';
+                }, 2000);
+            }).catch(() => {
+                // Fallback untuk browser lama
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                btn.classList.add('copied');
+                btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                showToast('Kode berhasil disalin!');
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = 'Copy';
+                }, 2000);
+            });
+        }
+
+        // ============================================
+        // TOAST NOTIFICATION
+        // ============================================
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // ============================================
+        // Q&A ACCORDION
+        // ============================================
+        function toggleQA(el) {
+            const item = el.closest('.qa-item');
+            const wasOpen = item.classList.contains('open');
+
+            // Tutup semua dulu
+            document.querySelectorAll('.qa-item').forEach(i => i.classList.remove('open'));
+
+            // Toggle yang diklik
+            if (!wasOpen) {
+                item.classList.add('open');
+            }
+        }
+
+        // ============================================
+        // EXPAND ALL Q&A
+        // ============================================
+        function expandAll() {
+            const items = document.querySelectorAll('.qa-item');
+            const allOpen = Array.from(items).every(i => i.classList.contains('open'));
+
+            items.forEach(i => {
+                if (allOpen) {
+                    i.classList.remove('open');
+                } else {
+                    i.classList.add('open');
+                }
+            });
+
+            showToast(allOpen ? 'Semua Q&A ditutup' : 'Semua Q&A dibuka');
+        }
+    </script>
+
+</body>
+</html>
